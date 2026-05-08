@@ -78,3 +78,17 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+      - name: Publish build summary
+        if: always()
+        run: |
+          {
+            echo "## Build Summary"
+            echo ""
+            echo "| Field | Value |"
+            echo "|---|---|"
+            echo "| Event | ${{ github.event_name }} |"
+            echo "| Ref | ${{ github.ref_name }} |"
+            echo "| Commit SHA | \`${{ github.sha }}\` |"
+            echo "| Image pushed | ${{ github.event_name != 'pull_request' }} |"
+            echo "| Image tags | \`${{ steps.meta.outputs.tags }}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
