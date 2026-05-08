@@ -1,0 +1,11 @@
+# Default owner
+* @qu1queee
+
+# Workflow files
+/.github/workflows/ @qu1queee
+
+# Dockerfile
+/Dockerfile @qu1queee
+
+# Go source files
+**/*.go @qu1queee
