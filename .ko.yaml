@@ -1,0 +1,11 @@
+defaultBaseImage: gcr.io/distroless/static-debian12
+
+builds:
+- id: server
+  env:
+  - CGO_ENABLED=0
+  - GOOS=linux
+  ldflags:
+  - -w
+  - -s
+  - -X main.version={{or .Env.VERSION "dev"}}
