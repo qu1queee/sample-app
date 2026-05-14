@@ -1,25 +1,18 @@
 # Stage 1: build — full Go toolchain, ~900 MB
 FROM golang:1.23-bookworm AS builder
-
 WORKDIR /app
-
 COPY go.mod ./
 RUN go mod download
-
 COPY . .
-
 ARG VERSION=dev
-RUN CGO_ENABLED=0 GOOS=linux go build \
-    -ldflags="-X main.version=${VERSION} -w -s" \
-    -o server .
+# TODO: build a fully static binary — disable CGO, target linux, inject VERSION into main.version, strip debug info with -w -s; output named "server"
+RUN # ???
 
 # Stage 2: runtime — distroless static, ~2 MB, no shell, no package manager
 FROM gcr.io/distroless/static-debian12
-
-COPY --from=builder /app/server /server
-
-# UID 65532 is the "nonroot" user defined in distroless images.
-USER 65532:65532
-
+# TODO: copy only the compiled binary from the builder stage into this image at /server
+# ???
+# TODO: run as the distroless non-root user (UID 65532 is defined in the distroless image)
+USER # ???
 EXPOSE 8080
 ENTRYPOINT ["/server"]
