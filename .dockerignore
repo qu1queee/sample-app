@@ -1,0 +1,6 @@
+.git
+*.md
+Dockerfile*
+build-buildah.sh
+trivy-sample.json
+shipwright/
