@@ -4,7 +4,7 @@ metadata:
   name: cc-server
   namespace: cc-week08
 spec:
-  replicas: # TODO: set to 2
+  replicas: 2
   selector:
     matchLabels:
       app: cc-server
@@ -15,7 +15,27 @@ spec:
     spec:
       containers:
       - name: server
-        image: # TODO: cc-week08-server:1.0.0
-        # TODO: add imagePullPolicy so kubelet does not try to pull from a registry
+        image: cc-week08-server:1.0.0
+        imagePullPolicy: Never
         ports:
-        - containerPort: # TODO: the port the Go server listens on
+        - containerPort: 8080
+        envFrom:
+        - configMapRef:
+            name: cc-config
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          failureThreshold: 3
+          timeoutSeconds: 2
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 3
+          periodSeconds: 5
+          failureThreshold: 2
+          successThreshold: 1
+          timeoutSeconds: 2

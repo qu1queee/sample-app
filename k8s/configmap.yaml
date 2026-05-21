@@ -5,4 +5,4 @@ metadata:
   namespace: cc-week08
 data:
   APP_ENV: production
-  APP_VERSION: # TODO: set to "2.0.0"
+  APP_VERSION: "2.0.0"
