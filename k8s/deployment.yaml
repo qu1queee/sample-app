@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cc-server
+  namespace: cc-week08
+spec:
+  replicas: # TODO: set to 2
+  selector:
+    matchLabels:
+      app: cc-server
+  template:
+    metadata:
+      labels:
+        app: cc-server
+    spec:
+      containers:
+      - name: server
+        image: # TODO: cc-week08-server:1.0.0
+        # TODO: add imagePullPolicy so kubelet does not try to pull from a registry
+        ports:
+        - containerPort: # TODO: the port the Go server listens on
