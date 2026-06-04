@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: cc-server-svc
-  namespace: cc-week08
+  namespace: cc-week09
 spec:
   type: ClusterIP
   selector:

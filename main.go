@@ -1,10 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 )
@@ -14,7 +17,12 @@ import (
 //	go build -ldflags="-X main.version=1.2.3" .
 var version = "dev"
 
-var broken atomic.Bool
+var (
+	broken atomic.Bool
+	dataMu sync.Mutex
+)
+
+const dataFile = "/data/messages.txt"
 
 func main() {
 	appVersion := os.Getenv("APP_VERSION")
@@ -53,6 +61,55 @@ func main() {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]string{"status": "breaking"})
 	})
+	mux.HandleFunc("/write", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
+		msg := r.URL.Query().Get("msg")
+		if msg == "" {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{"error": "msg query param required"})
+			return
+		}
+
+		dataMu.Lock()
+		defer dataMu.Unlock()
+
+		if err := os.MkdirAll("/data", 0755); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+			return
+		}
+		f, err := os.OpenFile(dataFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+			return
+		}
+		fmt.Fprintln(f, msg)
+		f.Close()
+
+		count, _ := countLines(dataFile)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]int{"count": count})
+	})
+	mux.HandleFunc("/read", func(w http.ResponseWriter, r *http.Request) {
+		dataMu.Lock()
+		defer dataMu.Unlock()
+
+		data, err := os.ReadFile(dataFile)
+		if err != nil {
+			if os.IsNotExist(err) {
+				fmt.Fprint(w, "")
+				return
+			}
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+			return
+		}
+		w.Write(data)
+	})
 
 	addr := ":8080"
 	fmt.Printf("listening on %s  version=%s  env=%s\n", addr, appVersion, appEnv)
@@ -60,4 +117,20 @@ func main() {
 		fmt.Fprintf(os.Stderr, "fatal: %v\n", err)
 		os.Exit(1)
 	}
+}
+
+func countLines(filename string) (int, error) {
+	f, err := os.Open(filename)
+	if err != nil {
+		return 0, err
+	}
+	defer f.Close()
+	scanner := bufio.NewScanner(f)
+	count := 0
+	for scanner.Scan() {
+		if strings.TrimSpace(scanner.Text()) != "" {
+			count++
+		}
+	}
+	return count, scanner.Err()
 }
