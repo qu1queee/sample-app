@@ -1,0 +1,8 @@
+apiVersion: shipwright.io/v1beta1
+kind: BuildRun
+metadata:
+  generateName: cc-server-buildpacks-run-
+  namespace: cc-week10
+spec:
+  build:
+    name: cc-server-buildpacks

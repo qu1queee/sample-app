@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: cc-server
-  namespace: cc-week09
+  namespace: cc-week10
 spec:
   replicas: 1
   selector:
@@ -15,24 +15,13 @@ spec:
     spec:
       containers:
       - name: server
-        image: cc-week09-server:1.0.0
-        imagePullPolicy: Never
+        image: localhost:5001/cc-server:1.0.0
+        imagePullPolicy: Always
         ports:
         - containerPort: 8080
-        envFrom:
-        - configMapRef:
-            name: cc-config
-        volumeMounts:
-        - name: data
-          mountPath: /data
-        # TODO: add a resources block here (Part 3)
-        # resources:
-        #   requests:
-        #     cpu: ""
-        #     memory: ""
-        #   limits:
-        #     cpu: ""
-        #     memory: ""
+        env:
+        - name: GREETING
+          value: "Hello"
         livenessProbe:
           httpGet:
             path: /health
@@ -50,7 +39,3 @@ spec:
           failureThreshold: 2
           successThreshold: 1
           timeoutSeconds: 2
-      volumes:
-      - name: data
-        persistentVolumeClaim:
-          claimName: cc-data

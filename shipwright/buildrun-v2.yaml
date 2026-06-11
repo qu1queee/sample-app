@@ -1,0 +1,11 @@
+apiVersion: shipwright.io/v1beta1
+kind: BuildRun
+metadata:
+  generateName: cc-server-buildpacks-run-
+  namespace: cc-week10
+spec:
+  build:
+    name: cc-server-buildpacks
+  output:
+    image: kind-registry:5000/cc-server:2.0.0
+    insecure: true

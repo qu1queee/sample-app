@@ -33,11 +33,15 @@ func main() {
 	if appEnv == "" {
 		appEnv = "development"
 	}
+	greeting := os.Getenv("GREETING")
+	if greeting == "" {
+		greeting = "Hello"
+	}
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		hostname, _ := os.Hostname()
-		fmt.Fprintf(w, "hostname=%s  version=%s  env=%s\n", hostname, appVersion, appEnv)
+		fmt.Fprintf(w, "greeting=%s  hostname=%s  version=%s  env=%s\n", greeting, hostname, appVersion, appEnv)
 	})
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		if broken.Load() {
@@ -112,7 +116,7 @@ func main() {
 	})
 
 	addr := ":8080"
-	fmt.Printf("listening on %s  version=%s  env=%s\n", addr, appVersion, appEnv)
+	fmt.Printf("listening on %s  version=%s  env=%s  greeting=%s\n", addr, appVersion, appEnv, greeting)
 	if err := http.ListenAndServe(addr, mux); err != nil {
 		fmt.Fprintf(os.Stderr, "fatal: %v\n", err)
 		os.Exit(1)
