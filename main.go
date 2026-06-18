@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -113,6 +114,17 @@ func main() {
 			return
 		}
 		w.Write(data)
+	})
+
+	mux.HandleFunc("/external", func(w http.ResponseWriter, r *http.Request) {
+		resp, err := http.Get("https://httpbin.org/get")
+		if err != nil {
+			http.Error(w, fmt.Sprintf("external call failed: %v", err), http.StatusBadGateway)
+			return
+		}
+		defer resp.Body.Close()
+		w.Header().Set("Content-Type", "application/json")
+		io.Copy(w, resp.Body)
 	})
 
 	addr := ":8080"
