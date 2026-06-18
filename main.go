@@ -116,6 +116,11 @@ func main() {
 		w.Write(data)
 	})
 
+	mux.HandleFunc("/slow", func(w http.ResponseWriter, r *http.Request) {
+		time.Sleep(3 * time.Second)
+		fmt.Fprintln(w, "slow response after 3s")
+	})
+
 	mux.HandleFunc("/external", func(w http.ResponseWriter, r *http.Request) {
 		resp, err := http.Get("https://httpbin.org/get")
 		if err != nil {

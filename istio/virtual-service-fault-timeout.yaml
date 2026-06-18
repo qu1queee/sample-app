@@ -7,12 +7,7 @@ spec:
   hosts:
   - cc-server
   http:
-  - fault:
-      delay:
-        percentage:
-          value: 100
-        fixedDelay: 3s
-    timeout: 1s
+  - timeout: 1s
     route:
     - destination:
         host: cc-server
