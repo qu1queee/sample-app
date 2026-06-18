@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: curl-client
+  namespace: cc-week11
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: curl-client
+  template:
+    metadata:
+      labels:
+        app: curl-client
+    spec:
+      containers:
+      - name: curl
+        image: curlimages/curl:8.6.0
+        command: ["sleep", "infinity"]

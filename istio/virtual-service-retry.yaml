@@ -1,0 +1,21 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: cc-server
+  namespace: cc-week11
+spec:
+  hosts:
+  - cc-server
+  http:
+  - fault:
+      abort:
+        percentage:
+          value: 50
+        httpStatus: 503
+    retries:
+      attempts: 3
+      perTryTimeout: 2s
+      retryOn: 5xx
+    route:
+    - destination:
+        host: cc-server
